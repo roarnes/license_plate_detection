@@ -31,36 +31,42 @@ train_datagen = ImageDataGenerator (rescale = 1./255,
 
 test_datagen = ImageDataGenerator(rescale = 1./255)
 
-training_set = train_datagen.flow_from_directory('new_training_data_canny/', 
+training_set = train_datagen.flow_from_directory('training_data/', 
 												target_size = (64, 64), 
 												color_mode = 'grayscale',
 												batch_size = 32, 
 												class_mode = 'binary')
 
-test_set = test_datagen.flow_from_directory('new_test_data_canny/', 
+test_set = test_datagen.flow_from_directory('training_data/', 
 											target_size = (64, 64), 
 											color_mode = 'grayscale',
 											batch_size = 32, 
 											class_mode = 'binary')
 
+#TRAINING MODEL
 classifier.fit_generator(training_set, 
 						steps_per_epoch = 100, 
-						epochs = 3, 
+						epochs = 1, 
 						validation_data = test_set, 
 						validation_steps = 10)
 
+img = cv2.imread('full1canny.jpg')
 
-img = cv2.imread('full1.png')
 edges = cv2.Canny(img, 100, 200)
 
+# edges = img
+
+# tmp = edges 
 stepSize = 64
 (w_width, w_height) = (64, 64)
 
-onceFlag = 0
+test = 0
 
 for x in range(0, edges.shape[1] - w_width, stepSize):
 	for y in range(0, edges.shape[0] - w_height, stepSize):
 		window = edges[x:x + w_width, y:y + w_height]
+
+		print(x)
 
 		if window.shape != (64, 64):
 			break
@@ -79,8 +85,9 @@ for x in range(0, edges.shape[1] - w_width, stepSize):
 
 		print(prediction)
 
-		if onceFlag == 0 and prediction == 'adaplat':
-			cv2.rectangle(img, (x, y), (x + w_width, y + w_height), (255, 0, 0), 2) # draw rectangle on image
-			plt.imshow(np.array(img).astype('uint8'))
+		if test == 0 and prediction == 'adaplat':
+			cv2.rectangle(edges, (x, y), (x + w_width, y + w_height), (255, 0, 0), 2) # draw rectangle on image
+			plt.imshow(np.array(edges).astype('uint8'))
+			test = 1
 		
 plt.show()
